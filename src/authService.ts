@@ -3,7 +3,7 @@ import request from 'request';
 import Moment from 'moment';
 import opn from 'open';
 
-const CREDENTIALS = require('./secrets/credentials.json').web;
+const CREDENTIALS = require('../secrets/credentials.json').web;
 
 export class AuthService {
 
