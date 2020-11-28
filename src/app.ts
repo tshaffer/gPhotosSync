@@ -48,6 +48,9 @@ async function main() {
     return;
   }
 
+  const scopes = [GooglePhotos.photosApiReadOnlyScope()];
+  await authService.authenticate(scopes);
+
   if (options.albums) {
     const albums = await googlePhotos.listAlbums();
     appController.onAlbums(albums);
@@ -56,8 +59,8 @@ async function main() {
 
   // log.setVerbose(options.verbose);
 
-  const scopes = [GooglePhotos.photosApiReadOnlyScope()];
-  await authService.authenticate(scopes);
+  // const scopes = [GooglePhotos.photosApiReadOnlyScope()];
+  // await authService.authenticate(scopes);
 
   console.log('options');
   console.log('job: ', options.job);
