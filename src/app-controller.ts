@@ -5,7 +5,7 @@ import lo from 'lodash';
 import Moment from 'moment';
 
 import * as util from './util';
-// import { log } from './log';
+import { log } from './log';
 
 const __referenceStoredItem = {
   mediaItem: {},
@@ -39,7 +39,7 @@ export class AppController {
   }
 
   onAlbums(albums: any) {
-    // log.info(this, 'onAlbums');
+    log.info(this, 'onAlbums');
     console.log('onAlbums');
 
     const maxTitleStringLen = albums.reduce((prev: any, curr: any) => Math.max(prev, curr.title.length), 0);
@@ -48,13 +48,13 @@ export class AppController {
       album.items = [];
       this.albumDb.set(album.id, album);
 
-      // log.info(this, album.title.padEnd(maxTitleStringLen), album.id)
+      log.info(this, album.title.padEnd(maxTitleStringLen), album.id)
       console.log(album.title.padEnd(maxTitleStringLen), album.id);
     });
   }
 
   onRefreshAlbum(album: any, items: any) {
-    // log.info(this, 'onRefreshAlbum');
+    log.info(this, 'onRefreshAlbum');
 
     album.items = items;
     const albums = [album];
@@ -62,7 +62,7 @@ export class AppController {
   }
 
   onMediaItemsDownloaded(mediaItems: any) {
-    // log.info(this, 'onMediaItemsDownloaded', mediaItems.length);
+    log.info(this, 'onMediaItemsDownloaded', mediaItems.length);
 
     const storedItems = mediaItems.map((mediaItem: any) => {
       let storedItem = this.photoDb.get(mediaItem.id);
@@ -76,7 +76,7 @@ export class AppController {
       return this.photoDb.set(mediaItem.id, storedItem);
     });
 
-    // log.info(this, 'onMediaItemsDownloaded total media items', this.photoDb.getAll().length);
+    log.info(this, 'onMediaItemsDownloaded total media items', this.photoDb.getAll().length);
     this._fixFilenamesForDuplicates();
     return storedItems;
   }
@@ -84,7 +84,7 @@ export class AppController {
   _fixFilenamesForDuplicates() {
     const duplicates: any = this._getStoredItemsWithDuplicateFilenames();
 
-    // log.info(this, 'fixFilenamesForDuplicates found duplicates', Object.keys(duplicates).length);
+    log.info(this, 'fixFilenamesForDuplicates found duplicates', Object.keys(duplicates).length);
 
     for (const filename in duplicates) {
       if (Object.prototype.hasOwnProperty.call(duplicates, filename)) {
@@ -126,13 +126,13 @@ export class AppController {
   }
 
   findMediaItemIdsToProbe(renewIfOlderThanDays: any, numberOfItems: any) {
-    // log.verbose(this, 'findMediaItemIdsToProbe', renewIfOlderThanDays, numberOfItems);
+    log.verbose(this, 'findMediaItemIdsToProbe', renewIfOlderThanDays, numberOfItems);
 
     const storedItemsToProbe = this.photoDb.getByFilter(
       this._createProbeFilterFn(renewIfOlderThanDays)
     ).slice(0, numberOfItems);
 
-    // log.verbose(this, 'storedItemsToProbe', storedItemsToProbe.length);
+    log.verbose(this, 'storedItemsToProbe', storedItemsToProbe.length);
 
     return storedItemsToProbe.map((item: any) => item.mediaItem.id);
   }
@@ -151,7 +151,7 @@ export class AppController {
   }
 
   onProbedMediaItems(contentLengthMap: any) {
-    // log.info(this, 'onProbedMediaItems', Object.keys(contentLengthMap).length);
+    log.info(this, 'onProbedMediaItems', Object.keys(contentLengthMap).length);
 
     const keys = Object.keys(contentLengthMap);
     const storedItems = keys.map(key => {
@@ -168,7 +168,7 @@ export class AppController {
 
     // const forDownload = this._chooseFilesForDownload(storedItems, contentLengthMap);
     const forDownload = this._chooseFilesForDownload(storedItems);
-    // log.verbose(this, 'onProbedMediaItems for download', forDownload.length);
+    log.verbose(this, 'onProbedMediaItems for download', forDownload.length);
 
     forDownload
       .map((storedItem: any) => {
@@ -192,19 +192,19 @@ export class AppController {
   }
 
   async renewMediaItems(mediaItemIds: any) {
-    // log.info(this, 'renewMediaItems', mediaItemIds.length);
+    log.info(this, 'renewMediaItems', mediaItemIds.length);
     const mediaItems = await this.googlePhotos.batchGet(mediaItemIds);
     return this.onMediaItemsDownloaded(mediaItems);
   }
 
   findMediaItemsToDownload(numberOfItems: any) {
-    // log.verbose(this, 'findMediaItemsToDownload', numberOfItems);
+    log.verbose(this, 'findMediaItemsToDownload', numberOfItems);
 
     const storedItemsToDownload = this.photoDb.getByFilter(
       this._createDownloadFilterFn(), numberOfItems
     ).slice(0, numberOfItems);
 
-    // log.verbose(this, 'findMediaItemsToDownload stored items', storedItemsToDownload.length);
+    log.verbose(this, 'findMediaItemsToDownload stored items', storedItemsToDownload.length);
 
     return storedItemsToDownload.map((storedItem: any) => storedItem.mediaItem.id);
   }

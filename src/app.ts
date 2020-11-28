@@ -9,6 +9,8 @@ import config from './config.json'
 import { AppController } from './app-controller';
 import { Scheduler } from './jobs';
 
+import { log } from './log';
+
 async function main() {
   console.log('main invoked');
 
@@ -44,7 +46,7 @@ async function main() {
   // options.params = 'Toilet';
 
   if (options.help) {
-    // log.info(this, 'help');
+    log.info(this, 'help');
     return;
   }
 
@@ -57,7 +59,7 @@ async function main() {
     return;
   }
 
-  // log.setVerbose(options.verbose);
+  log.setVerbose(options.verbose);
 
   // const scopes = [GooglePhotos.photosApiReadOnlyScope()];
   // await authService.authenticate(scopes);
@@ -66,14 +68,14 @@ async function main() {
   console.log('job: ', options.job);
   console.log('params: ', options.params);
   if (options.count) {
-    // log.info(this, 'all media items', photoDb.count());
+    log.info(this, 'all media items', photoDb.count());
     console.log('all media items', photoDb.count());
   } else if (options.job) {
-    // log.info(this, ' asdfdf ', options.job);
+    log.info(this, ' asdfdf ', options.job);
     console.log(' asdfdf ', options.job);
     scheduler.triggerNow(options.job, options.params);
   } else {
-    // log.info(this, '===== App Started =====');
+    log.info(this, '===== App Started =====');
     console.log('===== App Started =====');
     scheduler.scheduleJobs();
     scheduler.triggerNow('appStartupJob', []);

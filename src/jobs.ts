@@ -3,7 +3,7 @@ import { Downloader } from './downloader';
 import { AppController } from './app-controller';
 
 import config from './config.json'
-// const { log } = require('./log');
+import { log } from './log';
 
 export class Scheduler {
 
@@ -92,13 +92,13 @@ export class Scheduler {
   }
 
   _probeMediaItemRefreshFn(renewIfOlderThanDays: any, numberOfItems: any) {
-    // log.info(this, '');
-    // log.info(this, '_probeMediaItemRefreshFn', renewIfOlderThanDays, numberOfItems);
+    log.info(this, '');
+    log.info(this, '_probeMediaItemRefreshFn', renewIfOlderThanDays, numberOfItems);
 
     const mediaItemIdsToProbe = this.appController.findMediaItemIdsToProbe(
       renewIfOlderThanDays, numberOfItems
     );
-    // log.info(this, '_probeMediaItemRefreshFn mediaItemsToProbe', mediaItemIdsToProbe.length);
+    log.info(this, '_probeMediaItemRefreshFn mediaItemsToProbe', mediaItemIdsToProbe.length);
 
     this.downloader.probeMediaItems(mediaItemIdsToProbe).then((contentLengthMap: any) => {
       this.appController.onProbedMediaItems(contentLengthMap);
@@ -106,11 +106,11 @@ export class Scheduler {
   }
 
   _downloadMediaItemFilesJob(numberOfItems: any) {
-    // log.info(this, '');
-    // log.info(this, '_downloadMediaItemFilesJob', numberOfItems);
+    log.info(this, '');
+    log.info(this, '_downloadMediaItemFilesJob', numberOfItems);
 
     const mediaItemIdsToDownload = this.appController.findMediaItemsToDownload(numberOfItems);
-    // log.info(this, '_downloadMediaItemFilesJob found', mediaItemIdsToDownload.length);
+    log.info(this, '_downloadMediaItemFilesJob found', mediaItemIdsToDownload.length);
 
     this.appController.renewMediaItems(mediaItemIdsToDownload).then(storedItems => {
       const mediaItems = storedItems.map((storedItem: any) => storedItem.mediaItem);
@@ -121,8 +121,8 @@ export class Scheduler {
   }
 
   _searchMediaItemsJob(numOfDaysBack: number, numOfItems: number) {
-    // log.info(this, '');
-    // log.info(this, '_searchMediaItemsJob', numOfDaysBack, numOfItems);
+    log.info(this, '');
+    log.info(this, '_searchMediaItemsJob', numOfDaysBack, numOfItems);
 
     if (numOfItems === 0) {
       numOfItems = 9999999999;
@@ -140,8 +140,8 @@ export class Scheduler {
   }
 
   _appStartupJob() {
-    // log.info(this, '');
-    // log.info(this, 'appStartupJob');
+    log.info(this, '');
+    log.info(this, 'appStartupJob');
 
     const existingFiles = this.downloader.getExistingFiles();
     const storedItemsMap = this.appController.getStoredItemsByFilenameMap(
@@ -152,7 +152,7 @@ export class Scheduler {
       .filter((file: any) => storedItemsMap.hasOwnProperty(file.filename))
       .filter((file: any) => this.appController.hasStoredItemDiscrepancy(storedItemsMap[file.filename].storedItem));
 
-    // log.info(this, 'files with discrepancies', files.length);
+    log.info(this, 'files with discrepancies', files.length);
 
     files.forEach((file: any) => {
       const mediaItem = storedItemsMap[file.filename].storedItem.mediaItem;
@@ -160,7 +160,7 @@ export class Scheduler {
     });
 
     const res = this.appController.onFilesDownloaded(files);
-    // log.info(this, 'updated info on', res.length, 'already downloaded items');
+    log.info(this, 'updated info on', res.length, 'already downloaded items');
   }
 
 }

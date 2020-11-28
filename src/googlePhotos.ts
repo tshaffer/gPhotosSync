@@ -2,7 +2,7 @@ import { AuthService } from './authService';
 import request from 'request';
 
 import * as util from './util';
-// const { log } = require('./log');
+import { log } from './log';
 
 export class GooglePhotos {
 
@@ -18,7 +18,7 @@ export class GooglePhotos {
 
   async batchGet(mediaItemIds: any) {
     const groups = util.createGroups(mediaItemIds, GooglePhotoAPIs.BATCH_GET_LIMIT);
-    // log.verbose(this, 'batchGet split', mediaItemIds.length, 'into', groups.length, 'groups');
+    log.verbose(this, 'batchGet split', mediaItemIds.length, 'into', groups.length, 'groups');
 
     const results: any[] = [];
 
@@ -58,7 +58,7 @@ export class GooglePhotos {
         response.albums.forEach((album: any) => albums.push(album));
         nextPageToken = response.nextPageToken;
       } catch (err) {
-        // log.error(err);
+        log.error(err);
         nextPageToken = null;
       }
 
@@ -221,21 +221,21 @@ export class SearchFilters {
   filters: any;
 
   constructor(includeArchivedMedia: any) {
-      this.includeArchivedMedia = includeArchivedMedia;
+    this.includeArchivedMedia = includeArchivedMedia;
   }
 
   setDateFilter(dateFilter: any) {
-      this.dateFilter = dateFilter;
+    this.dateFilter = dateFilter;
   }
 
   populateFilters(filters: any) {
-      filters.includeArchivedMedia = this.includeArchivedMedia;
-      if (this.dateFilter) {
-          filters.dateFilter = {
-              dates: this.dateFilter.dates,
-              ranges: this.dateFilter.ranges
-          };
-      }
+    filters.includeArchivedMedia = this.includeArchivedMedia;
+    if (this.dateFilter) {
+      filters.dateFilter = {
+        dates: this.dateFilter.dates,
+        ranges: this.dateFilter.ranges
+      };
+    }
   }
 }
 
@@ -245,18 +245,18 @@ export class DateFilter {
   ranges: any[];
 
   constructor() {
-      this.dates = [];
-      this.ranges = [];
+    this.dates = [];
+    this.ranges = [];
   }
 
   addDateFilter(date: any) {
-      this.dates.push(date);
+    this.dates.push(date);
   }
 
   addRangeFilter(dateSpec: any) {
-      this.ranges.push({
-          startDate: dateSpec.startDate,
-          endDate: dateSpec.endDate
-      });
+    this.ranges.push({
+      startDate: dateSpec.startDate,
+      endDate: dateSpec.endDate
+    });
   }
 }

@@ -1,7 +1,6 @@
 import * as fs from 'fs-extra';
 import path from 'path';
 
-// const mkdirpSync = require('mkdirp').sync;
 import mkdirp from 'mkdirp';
 
 export class Store {
