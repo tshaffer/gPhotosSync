@@ -40,6 +40,7 @@ export class AppController {
 
   onAlbums(albums: any) {
     // log.info(this, 'onAlbums');
+    console.log('onAlbums');
 
     const maxTitleStringLen = albums.reduce((prev: any, curr: any) => Math.max(prev, curr.title.length), 0);
 
@@ -48,6 +49,7 @@ export class AppController {
       this.albumDb.set(album.id, album);
 
       // log.info(this, album.title.padEnd(maxTitleStringLen), album.id)
+      console.log(album.title.padEnd(maxTitleStringLen), album.id);
     });
   }
 
