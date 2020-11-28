@@ -1,7 +1,7 @@
-import { Store } from './my-key-value-store';
+import { Store } from './keyValueStore';
 import { AuthStorage } from './authStorage';
 import { AuthService } from './authService';
-import { GooglePhotos } from './google-photos';
+import { GooglePhotos } from './googlePhotos';
 import { Downloader } from './downloader';
 import args from 'command-line-args';
 

@@ -6,7 +6,7 @@ import mkdirp from 'mkdirp';
 
 // const { log } = require('./log');
 import * as util from './util';
-import { SearchFilters, DateFilter } from './google-photos';
+import { SearchFilters, DateFilter } from './googlePhotos';
 
 import config from './config.json'
 
