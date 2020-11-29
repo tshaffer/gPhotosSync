@@ -16,6 +16,33 @@ export class GooglePhotos {
     return 'https://www.googleapis.com/auth/photoslibrary.readonly';
   }
 
+  async listLibraryContents(nextPageToken: any = null) {
+
+    const mediaItems: any[] = [];
+
+    let url = GooglePhotoAPIs.mediaItems;
+    do {
+      if (nextPageToken != null) {
+        url = `${GooglePhotoAPIs.mediaItems}?pageToken=${nextPageToken}`;
+      }
+
+      try {
+        const response: any = await this._getRequest(url);
+        console.log(response);
+        response.mediaItems.forEach((mediaItem: any) => mediaItems.push(mediaItem));
+        nextPageToken = response.nextPageToken;
+      } catch (err) {
+        log.error(err);
+        nextPageToken = null;
+      }
+
+    } while (nextPageToken != null);
+
+    return mediaItems;
+  }
+
+
+
   async batchGet(mediaItemIds: any) {
     const groups = util.createGroups(mediaItemIds, GooglePhotoAPIs.BATCH_GET_LIMIT);
     log.verbose(this, 'batchGet split', mediaItemIds.length, 'into', groups.length, 'groups');

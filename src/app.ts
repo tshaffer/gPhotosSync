@@ -19,7 +19,17 @@ async function main() {
 
   const authStorage = new AuthStorage();
   const authService = new AuthService(authStorage);
+
+  const scopes = [GooglePhotos.photosApiReadOnlyScope()];
+  await authService.authenticate(scopes);
+
   const googlePhotos = new GooglePhotos(authService);
+
+  const mediaItemList = await googlePhotos.listLibraryContents();
+  console.log(mediaItemList);
+  return;
+
+
   const downloadPath = config.photosPath;
   const downloader = new Downloader(photoDb, googlePhotos, downloadPath);
   const appController = new AppController(photoDb, albumDb, googlePhotos, downloadPath);
@@ -50,8 +60,8 @@ async function main() {
     return;
   }
 
-  const scopes = [GooglePhotos.photosApiReadOnlyScope()];
-  await authService.authenticate(scopes);
+  // const scopes = [GooglePhotos.photosApiReadOnlyScope()];
+  // await authService.authenticate(scopes);
 
   if (options.albums) {
     const albums = await googlePhotos.listAlbums();
