@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+import connectDB from './config/db';
+
 import { Store } from './keyValueStore';
 import { AuthStorage } from './authStorage';
 import { AuthService } from './authService';
@@ -13,6 +16,11 @@ import { log } from './log';
 
 async function main() {
   console.log('main invoked');
+
+  dotenv.config( { path: './/src/config/config.env' });
+  console.log('port env: ' + process.env.PORT);
+
+  connectDB();
 
   const photoDb = new Store('secrets/photos.data', {});
   const albumDb = new Store('secrets/albums.db', {});
