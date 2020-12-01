@@ -4,6 +4,8 @@ import request from 'request';
 import * as util from './util';
 import { log } from './log';
 
+import MediaItem from './models/MediaItem';
+
 export class GooglePhotos {
 
   authService: AuthService;
