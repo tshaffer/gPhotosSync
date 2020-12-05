@@ -3,8 +3,20 @@ import request from 'request';
 
 import * as util from './util';
 import { log } from './log';
+import {
+  DbMediaItem,
+  GoogleMediaItem
+} from './types';
 
 import MediaItem from './models/MediaItem';
+
+import {
+  // Query, 
+  Document,
+  // Model, 
+  // Schema,
+} from 'mongoose';
+import { isArray } from 'lodash';
 
 export class GooglePhotos {
 
@@ -20,7 +32,7 @@ export class GooglePhotos {
 
   async listLibraryContents(nextPageToken: any = null) {
 
-    const mediaItems: any[] = [];
+    const googleMediaItems: GoogleMediaItem[] = [];
 
     let url = GooglePhotoAPIs.mediaItems;
     do {
@@ -31,7 +43,57 @@ export class GooglePhotos {
       try {
         const response: any = await this._getRequest(url);
         console.log(response);
-        response.mediaItems.forEach((mediaItem: any) => mediaItems.push(mediaItem));
+
+        response.mediaItems.forEach((mediaItem: GoogleMediaItem) => {
+          googleMediaItems.push(mediaItem);
+        });
+
+        let doIt = true;
+        while (true) {
+          if (doIt) {
+            doIt = false;
+            if (googleMediaItems.length > 0) {
+              const promise: Promise<any> = this.addGoogleMediaItemsToDb(googleMediaItems);
+              promise
+                .then((returnValues: any[]) => {
+                  console.log('Items added to the db: ');
+                  console.log(returnValues);
+                })
+                .catch((err: any) => {
+                  console.log('Exception on adding google media items to db');
+                  console.log(err);
+                })
+            }
+          }
+        }
+
+        // if (isArray(response.mediaItems) && response.mediaItems.length > 0) {
+        //   let index = 0;
+        //   do {
+        //     const mediaItem: GoogleMediaItem = response.mediaItems[index];
+        //     const promise = this.addMediaItemToDb(mediaItem);
+        //     promise
+        //       .then( (doc: Document) => {
+        //         console.log('added mediaItem: ' + mediaItem);
+        //         console.log('added Document: ' + doc);
+        //       })
+        //   }
+
+        // }
+        // else {
+        //   debugger;
+        // }
+        // const promise: Promise<Document[]> = MediaItem.insertMany(mediaItems);
+        // promise
+        //   .then((promiseResults) => {
+        //     console.log('all media items added to db');
+        //   })
+        //   .catch((err) => {
+        //     console.log(err);
+        //     debugger;
+        //   });
+
+
         nextPageToken = response.nextPageToken;
       } catch (err) {
         log.error(err);
@@ -40,8 +102,61 @@ export class GooglePhotos {
 
     } while (nextPageToken != null);
 
-    return mediaItems;
+    return googleMediaItems;
   }
+
+  addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<any> {
+    const dbMediaItems: DbMediaItem[] = this.convertGoogleMediaItemsToDbMediaItems(googleMediaItems);
+    return MediaItem.collection.insertMany(dbMediaItems);
+  }
+
+  convertGoogleMediaItemsToDbMediaItems(googleMediaItems: GoogleMediaItem[]): DbMediaItem[] {
+    const dbMediaItems: DbMediaItem[] = [];
+    googleMediaItems.forEach((googleMediaItem: GoogleMediaItem) => {
+      const dbMediaItem: DbMediaItem = this.convertGoogleMediaItemToDbMediaItem(googleMediaItem);
+      dbMediaItems.push(dbMediaItem);
+    });
+    return dbMediaItems;
+  }
+
+  convertGoogleMediaItemToDbMediaItem(googleMediaItem: GoogleMediaItem): DbMediaItem {
+    const dbMediaItem: DbMediaItem = {
+      id: googleMediaItem.id,
+      baseUrl: googleMediaItem.baseUrl,
+      fileName: googleMediaItem.filename,
+      downloaded: false,
+      filePath: '',
+      productUrl: googleMediaItem.productUrl,
+      mimeType: googleMediaItem.mimeType,
+      creationTime: googleMediaItem.mediaMetadata.creationTime,
+      width: Number(googleMediaItem.mediaMetadata.width),
+      height: Number(googleMediaItem.mediaMetadata.height),
+    }
+    return dbMediaItem;
+  }
+
+  // addMediaItemToDb(mediaItem: GoogleMediaItem): Promise<Document> {
+
+  //   const { baseUrl, filename, id, mediaMetadata, mimeType, productUrl } = mediaItem;
+
+  //   // TEDTODO - typing as MediaItem doesn't work - it can't find it?
+  //   // const newMediaItem: MediaItem = new MediaItem();
+  //   const dbSchemaMediaItem: any = new MediaItem();
+  //   dbSchemaMediaItem.id = id;
+  //   dbSchemaMediaItem.baseUrl = baseUrl;
+  //   dbSchemaMediaItem.fileName = filename;
+  //   dbSchemaMediaItem.downloaded = false;
+  //   dbSchemaMediaItem.filePath = '';
+  //   dbSchemaMediaItem.productUrl = productUrl;
+  //   dbSchemaMediaItem.mimeType = mimeType;
+  //   dbSchemaMediaItem.creationTime = mediaMetadata.creationTime;
+  //   dbSchemaMediaItem.width = parseInt(mediaMetadata.width, 10);
+  //   dbSchemaMediaItem.height = parseInt(mediaMetadata.height, 10);
+
+  //   console.log('add db item with google id to db:');
+  //   console.log(id);
+  //   return dbSchemaMediaItem.save();
+  // }
 
 
 

@@ -20,7 +20,7 @@ async function main() {
   dotenv.config( { path: './/src/config/config.env' });
   console.log('port env: ' + process.env.PORT);
 
-  connectDB();
+  await connectDB();
 
   const photoDb = new Store('secrets/photos.data', {});
   const albumDb = new Store('secrets/albums.db', {});

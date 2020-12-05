@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const connectDB = async () => {
+async function connectDB() {
+// const connectDB = async () => {
   console.log('uri is:');
   console.log(process.env.MONGO_URI);
   const conn = await mongoose.connect(process.env.MONGO_URI, {
@@ -8,6 +9,7 @@ const connectDB = async () => {
     useCreateIndex: true,
     useFindAndModify: false,
   });
+  mongoose.Promise = global.Promise;
 
   console.log(`MongoDB Connected`);
 };
