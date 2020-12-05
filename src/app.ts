@@ -13,6 +13,7 @@ import { AppController } from './app-controller';
 import { Scheduler } from './jobs';
 
 import { log } from './log';
+import { findGoogleMediaItemsMissingFromDb } from './controllers';
 
 async function main() {
   console.log('main invoked');
@@ -20,22 +21,34 @@ async function main() {
   dotenv.config( { path: './/src/config/config.env' });
   console.log('port env: ' + process.env.PORT);
 
+  // connect to db
   await connectDB();
 
-  const photoDb = new Store('secrets/photos.data', {});
-  const albumDb = new Store('secrets/albums.db', {});
-
+  // setup authorization
   const authStorage = new AuthStorage();
   const authService = new AuthService(authStorage);
 
+  // authenticate with google
   const scopes = [GooglePhotos.photosApiReadOnlyScope()];
   await authService.authenticate(scopes);
+
+  // get command, parameters from command line
+
+  // for now, get media items on google but not in db; add them to db
+  await findGoogleMediaItemsMissingFromDb();
+
+  return;
+
+
+
 
   const googlePhotos = new GooglePhotos(authService);
 
   const mediaItemList = await googlePhotos.listLibraryContents();
   console.log(mediaItemList);
-  return;
+
+  const photoDb = new Store('secrets/photos.data', {});
+  const albumDb = new Store('secrets/albums.db', {});
 
 
   const downloadPath = config.photosPath;
