@@ -9,14 +9,13 @@ import {
 } from 'mongoose';
 import { getAllMediaItemsFromGoogle } from './googlePhotos';
 import { DbMediaItem, GoogleMediaItem } from '../types';
+import { addMediaItemsToDb } from './dbInterface';
 
 interface GoogleIdToDbMediaItemMap  {
   [id: string]: DbMediaItem;
 }
 
 export const addGoogleMediaItemsToDb = async (authService: AuthService) => {
-
-  // async function must do an await somewhere or wait for a promise?
 
   // retrieve all media items from db
   const mediaItemsInDb: Document[] = await getAllMediaItemsFromDb();
@@ -26,11 +25,9 @@ export const addGoogleMediaItemsToDb = async (authService: AuthService) => {
 
   // look for each google media item in the database
   const googleMediaItemsNotInDb: GoogleMediaItem[] = getGoogleMediaItemsNotInDb(mediaItemsInDb, googleMediaItems);
-  console.log(googleMediaItemsNotInDb);
   
   // add all that were not found
-
-  console.log('done');
+  await addMediaItemsToDb(googleMediaItemsNotInDb);
 };
 
 const getAllMediaItemsFromDb = async (): Promise<Document[]> => {
