@@ -13,7 +13,7 @@ import { AppController } from './app-controller';
 import { Scheduler } from './jobs';
 
 import { log } from './log';
-import { findGoogleMediaItemsMissingFromDb } from './controllers';
+import { addGoogleMediaItemsToDb } from './controllers';
 
 async function main() {
   console.log('main invoked');
@@ -35,7 +35,7 @@ async function main() {
   // get command, parameters from command line
 
   // for now, get media items on google but not in db; add them to db
-  await findGoogleMediaItemsMissingFromDb();
+  await addGoogleMediaItemsToDb(authService);
 
   return;
 

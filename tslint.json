@@ -20,6 +20,7 @@
     "one-line": false,
     "ordered-imports": false,
     "quotemark": [true, "single", "avoid-escape"],
+    "semicolon": [true, "always"],
     "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"]
   },
   "jsRules": {

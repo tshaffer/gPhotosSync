@@ -329,7 +329,7 @@ export class GooglePhotos {
       const probeReq = request(url, { headers });
 
       probeReq.on('response', (res) => {
-        res.on('data', function (data) {
+        res.on('data', (data) => {
           resolve({
             statusCode: res.statusCode,
             headers: res.headers

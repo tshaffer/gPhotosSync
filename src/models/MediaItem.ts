@@ -2,25 +2,9 @@ import * as mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-// mediaItem
-//  baseUrl: string
-//  filename: string
-//  id: string
-//  mediaMetadata: object
-//    creationTime: string
-//    height: string
-//    photo: object
-//      apertureFNumber: number
-//      cameraMake: string
-//      focalLength: number
-//      isoEquivalent: number
-//    width: string
-//  mimeType: string
-//  productUrl: string
-
 const MediaitemSchema = new Schema(
   {
-      id: {type: String, required: true},
+      id: {type: String, required: true, unique: true},
       baseUrl: {type: String, required: true},
       fileName: {type: String, required: true},
       downloaded: {type: Boolean, default: false},
