@@ -8,7 +8,7 @@ import {
   GoogleMediaItem
 } from './types';
 
-import MediaItem from './models/MediaItem';
+import Mediaitem from './models/Mediaitem';
 
 import {
   // Query, 
@@ -16,7 +16,7 @@ import {
   // Model, 
   // Schema,
 } from 'mongoose';
-import { isArray } from 'lodash';
+import { add, isArray } from 'lodash';
 
 export class GooglePhotos {
 
@@ -31,6 +31,8 @@ export class GooglePhotos {
   }
 
   async listLibraryContents(nextPageToken: any = null) {
+
+    let addedToDb = false;
 
     const googleMediaItems: GoogleMediaItem[] = [];
 
@@ -48,23 +50,18 @@ export class GooglePhotos {
           googleMediaItems.push(mediaItem);
         });
 
-        let doIt = true;
-        while (true) {
-          if (doIt) {
-            doIt = false;
-            if (googleMediaItems.length > 0) {
-              const promise: Promise<any> = this.addGoogleMediaItemsToDb(googleMediaItems);
-              promise
-                .then((returnValues: any[]) => {
-                  console.log('Items added to the db: ');
-                  console.log(returnValues);
-                })
-                .catch((err: any) => {
-                  console.log('Exception on adding google media items to db');
-                  console.log(err);
-                })
-            }
-          }
+        if (googleMediaItems.length > 0 && !addedToDb) {
+          addedToDb = true;
+          const promise: Promise<any> = this.addGoogleMediaItemsToDb(googleMediaItems);
+          // this.addGoogleMediaItemsToDb(googleMediaItems);
+          promise
+            .then(() => {
+              console.log('Items added to the db: ');
+            })
+            .catch((err: any) => {
+              console.log('Exception on adding google media items to db');
+              console.log(err);
+            })
         }
 
         // if (isArray(response.mediaItems) && response.mediaItems.length > 0) {
@@ -95,6 +92,7 @@ export class GooglePhotos {
 
 
         nextPageToken = response.nextPageToken;
+        console.log('nextPageToken is: ' + nextPageToken);
       } catch (err) {
         log.error(err);
         nextPageToken = null;
@@ -105,9 +103,41 @@ export class GooglePhotos {
     return googleMediaItems;
   }
 
-  addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<any> {
+  // addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<any> {
+  // addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): any {
+  addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<void> {
+
     const dbMediaItems: DbMediaItem[] = this.convertGoogleMediaItemsToDbMediaItems(googleMediaItems);
-    return MediaItem.collection.insertMany(dbMediaItems);
+
+    const addNextMediaItem = (index: number): Promise<void> => {
+      if (index >= dbMediaItems.length) {
+        return Promise.resolve();
+      }
+      const dbMediaItem = dbMediaItems[index];
+      console.log('add media item');
+      const promise = Mediaitem.collection.insertOne(dbMediaItem);
+      return promise
+        .then(() => {
+          console.log('added media item');
+          return addNextMediaItem(index + 1);
+        }).catch((error: Error) => {
+          console.log(error);
+          return Promise.reject();
+        })
+    };
+
+    return addNextMediaItem(0);
+
+    // return Mediaitem.collection.insertMany(dbMediaItems);
+
+    // const promise = Mediaitem.collection.insertOne(dbMediaItems[2]);
+    // promise
+    //   .then((x: any) => {
+    //     console.log('success');
+    //   }).catch((err: any) => {
+    //     console.log('failure');
+    //     console.log(err);
+    //   });
   }
 
   convertGoogleMediaItemsToDbMediaItems(googleMediaItems: GoogleMediaItem[]): DbMediaItem[] {

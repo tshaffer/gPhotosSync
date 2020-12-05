@@ -18,7 +18,7 @@ const Schema = mongoose.Schema;
 //  mimeType: string
 //  productUrl: string
 
-const MediaItemSchema = new Schema(
+const MediaitemSchema = new Schema(
   {
       id: {type: String, required: true},
       baseUrl: {type: String, required: true},
@@ -33,4 +33,4 @@ const MediaItemSchema = new Schema(
   }
 );
 
-export default mongoose.model('MediaItem', MediaItemSchema);
+export default mongoose.model('Mediaitem', MediaitemSchema);
