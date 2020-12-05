@@ -10,14 +10,9 @@ import {
 import { getAllMediaItemsFromGoogle } from './googlePhotos';
 import { DbMediaItem, GoogleMediaItem } from '../types';
 
-interface GoogleIdToGoogleMediaItemMap  {
-  [id: string]: GoogleMediaItem;
-}
-
 interface GoogleIdToDbMediaItemMap  {
   [id: string]: DbMediaItem;
 }
-
 
 export const addGoogleMediaItemsToDb = async (authService: AuthService) => {
 
@@ -48,19 +43,8 @@ const getGoogleMediaItemsNotInDb = (mediaItemsInDb: Document[], googleMediaItems
   const googleMediaItemsNotInDb: GoogleMediaItem[] = [];
 
   const mediaItemsById: GoogleIdToDbMediaItemMap = {};
-  mediaItemsInDb.forEach( (mediaItemInDb: any) => {
-    const dbMediaItem: DbMediaItem = {
-      id: mediaItemInDb.id,
-      baseUrl: mediaItemInDb.baseUrl,
-      fileName: mediaItemInDb.fileName,
-      downloaded: mediaItemInDb.downloaded,
-      filePath: mediaItemInDb.filePath,
-      productUrl: mediaItemInDb.productUrl, 
-      mimeType: mediaItemInDb.mimeType,
-      creationTime: mediaItemInDb.creationTime,
-      width: mediaItemInDb.width,
-      height: mediaItemInDb.height,
-    };
+  mediaItemsInDb.forEach( (mediaItemInDb: Document) => {
+    const dbMediaItem: DbMediaItem = mediaItemInDb.toObject();
     mediaItemsById[mediaItemInDb.id] = dbMediaItem;
   });
 
