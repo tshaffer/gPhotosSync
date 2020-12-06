@@ -106,13 +106,13 @@ export const getGooglePhotosToDownload = async (): Promise<DbMediaItem[]> => {
 
 const isMediaItemDownloaded = async (dbMediaItem: DbMediaItem): Promise<boolean> => {
   const id: string = dbMediaItem.id;
-  const shardedDirectory: string = await getShardedDirectory(id);
+  const shardedDirectory: string = await getShardedDirectory(true, id);
   const filePath: string = path.join(shardedDirectory, id + path.extname(dbMediaItem.fileName));
   const fileExists: boolean = fse.existsSync(filePath);
   return fileExists;
 };
 
-const getShardedDirectory = async (photoId: string): Promise<string> => {
+export const getShardedDirectory = async (useCache: boolean, photoId: string): Promise<string> => {
   const numChars = photoId.length;
   const targetDirectory = path.join(
     mediaItemsDir,
@@ -120,7 +120,7 @@ const getShardedDirectory = async (photoId: string): Promise<string> => {
     photoId.charAt(numChars - 1),
   );
 
-  if (shardedDirectoryExistsByPath.hasOwnProperty(targetDirectory)) {
+  if (useCache && shardedDirectoryExistsByPath.hasOwnProperty(targetDirectory)) {
     return Promise.resolve(targetDirectory);
   }
   return fsLocalFolderExists(targetDirectory)

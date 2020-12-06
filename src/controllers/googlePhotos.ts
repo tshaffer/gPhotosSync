@@ -1,13 +1,15 @@
 import * as path from 'path';
 import * as fse from 'fs-extra';
 
-import { GoogleMediaItem } from '../types';
+import { DbMediaItem, GoogleMediaItem } from '../types';
 
 import { AuthService } from '../authService';
 import request from 'request';
 
 import { log } from '../log';
 import { isArray, isNil } from 'lodash';
+import { getShardedDirectory } from './photos';
+import { addMediaItemToDb, convertGoogleMediaItemToDbMediaItem, upsertMediaItemInDb } from './dbInterface';
 
 export const GooglePhotoAPIs = {
   mediaItems: 'https://photoslibrary.googleapis.com/v1/mediaItems',
@@ -110,51 +112,6 @@ export const downloadMediaItemsMetadata = async (authService: AuthService, media
   });
 
   return mediaItems;
-
-  // let allResults: any[] = [];
-
-  // const maxMediaItemsToFetch = 8;
-
-  // const apiEndpoint = 'https://photoslibrary.googleapis.com/v1/mediaItems:batchGet?';
-
-  // const processFetchMediaItemMetadataBatch = (index: number): any => {
-
-  //   const numRemainingMediaItems = mediaItemIds.length - index;
-  //   if (numRemainingMediaItems <= 0) {
-  //     return Promise.resolve(allResults);
-  //   }
-
-  //   let numMediaItemsToFetch = numRemainingMediaItems;
-  //   if (numMediaItemsToFetch > maxMediaItemsToFetch) {
-  //     numMediaItemsToFetch = maxMediaItemsToFetch;
-  //   }
-
-  //   let endpoint = apiEndpoint;
-
-  //   // tslint:disable-next-line: prefer-for-of
-  //   while (numMediaItemsToFetch > 0) {
-  //     const id = mediaItemIds[index];
-  //     endpoint = endpoint + 'mediaItemIds=' + id;
-  //     numMediaItemsToFetch -= 1;
-  //     if (numMediaItemsToFetch > 0) {
-  //       endpoint += '&';
-  //     }
-  //     index++;
-  //   }
-
-  //   const accessToken = oauth2Controller.getAccessToken();
-  //   return requestPromise.get(endpoint, {
-  //     headers: { 'Content-Type': 'application/json' },
-  //     json: true,
-  //     auth: { bearer: accessToken },
-  //   }).then((results) => {
-  //     allResults = allResults.concat(results.mediaItemResults);
-  //     return processFetchMediaItemMetadataBatch(index);
-  //   });
-
-  // };
-
-  // return processFetchMediaItemMetadataBatch(0);
 };
 
 export const downloadMediaItems = async (authService: AuthService, mediaItemGroups: GoogleMediaItem[][]): Promise<any> => {
@@ -164,7 +121,14 @@ export const downloadMediaItems = async (authService: AuthService, mediaItemGrou
   const retVal: any = await (downloadMediaItem(authService, mediaItem));
   console.log(retVal);
 
-  return Promise.resolve();
+  if (retVal.valid) {
+    const dbMediaItem: DbMediaItem = convertGoogleMediaItemToDbMediaItem(retVal.mediaItem);
+    dbMediaItem.downloaded = true;
+    dbMediaItem.filePath = retVal.where;
+    await upsertMediaItemInDb(dbMediaItem);
+  } else {
+    debugger;
+  }
 };
 
 
@@ -173,7 +137,7 @@ const downloadMediaItem = async (authService: AuthService, mediaItem: GoogleMedi
   const fileSuffix = getSuffixFromMimeType(mediaItem.mimeType);
   const fileName = mediaItem.id + fileSuffix;
 
-  const baseDir = '/Users/tedshaffer/Documents/Projects/gPhotosSync/tmp';
+  const baseDir: string = await getShardedDirectory(false, mediaItem.id);
   const where = path.join(baseDir, fileName);
 
   const stream = await createDownloadStream(authService, mediaItem);
