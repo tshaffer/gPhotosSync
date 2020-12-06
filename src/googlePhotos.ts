@@ -125,17 +125,6 @@ export class GooglePhotos {
     };
 
     return addNextMediaItem(0);
-
-    // return Mediaitem.collection.insertMany(dbMediaItems);
-
-    // const promise = Mediaitem.collection.insertOne(dbMediaItems[2]);
-    // promise
-    //   .then((x: any) => {
-    //     console.log('success');
-    //   }).catch((err: any) => {
-    //     console.log('failure');
-    //     console.log(err);
-    //   });
   }
 
   convertGoogleMediaItemsToDbMediaItems(googleMediaItems: GoogleMediaItem[]): DbMediaItem[] {
@@ -162,31 +151,6 @@ export class GooglePhotos {
     }
     return dbMediaItem;
   }
-
-  // addMediaItemToDb(mediaItem: GoogleMediaItem): Promise<Document> {
-
-  //   const { baseUrl, filename, id, mediaMetadata, mimeType, productUrl } = mediaItem;
-
-  //   // TEDTODO - typing as MediaItem doesn't work - it can't find it?
-  //   // const newMediaItem: MediaItem = new MediaItem();
-  //   const dbSchemaMediaItem: any = new MediaItem();
-  //   dbSchemaMediaItem.id = id;
-  //   dbSchemaMediaItem.baseUrl = baseUrl;
-  //   dbSchemaMediaItem.fileName = filename;
-  //   dbSchemaMediaItem.downloaded = false;
-  //   dbSchemaMediaItem.filePath = '';
-  //   dbSchemaMediaItem.productUrl = productUrl;
-  //   dbSchemaMediaItem.mimeType = mimeType;
-  //   dbSchemaMediaItem.creationTime = mediaMetadata.creationTime;
-  //   dbSchemaMediaItem.width = parseInt(mediaMetadata.width, 10);
-  //   dbSchemaMediaItem.height = parseInt(mediaMetadata.height, 10);
-
-  //   console.log('add db item with google id to db:');
-  //   console.log(id);
-  //   return dbSchemaMediaItem.save();
-  // }
-
-
 
   async batchGet(mediaItemIds: any) {
     const groups = util.createGroups(mediaItemIds, GooglePhotoAPIs.BATCH_GET_LIMIT);

@@ -134,7 +134,7 @@ export const downloadMediaItems = async (authService: AuthService, mediaItemGrou
 
 const downloadMediaItem = async (authService: AuthService, mediaItem: GoogleMediaItem): Promise<any> => {
 
-  const fileSuffix = getSuffixFromMimeType(mediaItem.mimeType);
+  const fileSuffix = path.extname(mediaItem.filename);
   const fileName = mediaItem.id + fileSuffix;
 
   const baseDir: string = await getShardedDirectory(false, mediaItem.id);
