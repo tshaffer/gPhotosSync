@@ -103,8 +103,6 @@ export class GooglePhotos {
     return googleMediaItems;
   }
 
-  // addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<any> {
-  // addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): any {
   addGoogleMediaItemsToDb(googleMediaItems: GoogleMediaItem[]): Promise<void> {
 
     const dbMediaItems: DbMediaItem[] = this.convertGoogleMediaItemsToDbMediaItems(googleMediaItems);

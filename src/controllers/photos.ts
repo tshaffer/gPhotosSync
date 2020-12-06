@@ -26,8 +26,23 @@ export const addGoogleMediaItemsToDb = async (authService: AuthService) => {
   // look for each google media item in the database
   const googleMediaItemsNotInDb: GoogleMediaItem[] = getGoogleMediaItemsNotInDb(mediaItemsInDb, googleMediaItems);
   
+  // de-dup google media items before adding
+  const uniqueGoogleMediaItemsNotInDb: GoogleMediaItem[] = [];
+  const idToNotInDb: any = {};
+  googleMediaItemsNotInDb.forEach( (gItemNotInDb: GoogleMediaItem) => {
+    if (!idToNotInDb.hasOwnProperty(gItemNotInDb.id)) {
+      idToNotInDb[gItemNotInDb.id] = gItemNotInDb;
+      uniqueGoogleMediaItemsNotInDb.push(gItemNotInDb);
+    }
+    else {
+      console.log('duplicate found: id is: ' + gItemNotInDb.id);
+    }
+  });
+
   // add all that were not found
-  await addMediaItemsToDb(googleMediaItemsNotInDb);
+  if (uniqueGoogleMediaItemsNotInDb.length > 0) {
+    await addMediaItemsToDb(uniqueGoogleMediaItemsNotInDb);
+  }
 };
 
 const getAllMediaItemsFromDb = async (): Promise<Document[]> => {
