@@ -13,13 +13,21 @@ import { AppController } from './app-controller';
 import { Scheduler } from './jobs';
 
 import { log } from './log';
-import { addGoogleMediaItemsToDb } from './controllers';
+import {
+  // addGoogleMediaItemsToDb,
+  getGooglePhotosToDownload,
+}
+  from './controllers';
+
+export let mediaItemsDir: string = '';
 
 async function main() {
   console.log('main invoked');
 
-  dotenv.config( { path: './/src/config/config.env' });
+  dotenv.config({ path: './/src/config/config.env' });
   console.log('port env: ' + process.env.PORT);
+  mediaItemsDir = process.env.MEDIA_ITEMS_DIR;
+  console.log('mediaItemsDir: ' + mediaItemsDir);
 
   // connect to db
   await connectDB();
@@ -35,7 +43,9 @@ async function main() {
   // get command, parameters from command line
 
   // for now, get media items on google but not in db; add them to db
-  await addGoogleMediaItemsToDb(authService);
+  // await addGoogleMediaItemsToDb(authService);
+
+  await getGooglePhotosToDownload();
 
   return;
 
