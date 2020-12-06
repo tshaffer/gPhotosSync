@@ -5,12 +5,14 @@ import { AuthService } from '../authService';
 
 import Mediaitem from '../models/Mediaitem';
 import {
-  // Query, 
   Document,
-  // Model, 
-  // Schema,
 } from 'mongoose';
-import { downloadMediaItemsMetadata, getAllMediaItemsFromGoogle, GooglePhotoAPIs } from './googlePhotos';
+import {
+  downloadMediaItems,
+  downloadMediaItemsMetadata,
+  getAllMediaItemsFromGoogle,
+  GooglePhotoAPIs
+} from './googlePhotos';
 import { DbMediaItem, GoogleMediaItem } from '../types';
 import { addMediaItemsToDb } from './dbInterface';
 import {
@@ -144,7 +146,7 @@ export const downloadGooglePhotos = async (authService: AuthService): Promise<an
 
   const photosToDownload: DbMediaItem[] = await getGooglePhotosToDownload();
 
-  const mediaItemIds: string[] = photosToDownload.map( (photoToDownload: DbMediaItem) => {
+  const mediaItemIds: string[] = photosToDownload.map((photoToDownload: DbMediaItem) => {
     return photoToDownload.id;
   });
 
@@ -155,6 +157,8 @@ export const downloadGooglePhotos = async (authService: AuthService): Promise<an
   const mediaItemGroups: GoogleMediaItem[][] = await Promise.all(groups.map((sliceIds: any) => {
     return downloadMediaItemsMetadata(authService, sliceIds);
   }));
+
+  downloadMediaItems(authService, mediaItemGroups);
 
   console.log(mediaItemGroups);
 

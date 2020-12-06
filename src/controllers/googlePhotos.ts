@@ -1,9 +1,10 @@
-import { DbMediaItem, GoogleMediaItem } from '../types';
+import * as path from 'path';
+import * as fse from 'fs-extra';
+
+import { GoogleMediaItem } from '../types';
 
 import { AuthService } from '../authService';
 import request from 'request';
-
-import Mediaitem from '../models/Mediaitem';
 
 import { log } from '../log';
 import { isArray, isNil } from 'lodash';
@@ -104,10 +105,10 @@ export const downloadMediaItemsMetadata = async (authService: AuthService, media
   const result: any = await getRequest(authService, url);
 
   const mediaItemResults: any[] = result.mediaItemResults;
-  const mediaItems: GoogleMediaItem[] = mediaItemResults.map( (mediaItemResult: any) => {
+  const mediaItems: GoogleMediaItem[] = mediaItemResults.map((mediaItemResult: any) => {
     return mediaItemResult.mediaItem;
   });
-  
+
   return mediaItems;
 
   // let allResults: any[] = [];
@@ -150,9 +151,83 @@ export const downloadMediaItemsMetadata = async (authService: AuthService, media
   //     allResults = allResults.concat(results.mediaItemResults);
   //     return processFetchMediaItemMetadataBatch(index);
   //   });
-  
+
   // };
 
   // return processFetchMediaItemMetadataBatch(0);
+};
+
+export const downloadMediaItems = async (authService: AuthService, mediaItemGroups: GoogleMediaItem[][]): Promise<any> => {
+
+  const mediaItem: GoogleMediaItem = mediaItemGroups[0][0];
+
+  const retVal: any = await (downloadMediaItem(authService, mediaItem));
+  console.log(retVal);
+
+  return Promise.resolve();
+};
+
+
+const downloadMediaItem = async (authService: AuthService, mediaItem: GoogleMediaItem): Promise<any> => {
+
+  const fileSuffix = getSuffixFromMimeType(mediaItem.mimeType);
+  const fileName = mediaItem.id + fileSuffix;
+
+  const baseDir = '/Users/tedshaffer/Documents/Projects/gPhotosSync/tmp';
+  const where = path.join(baseDir, fileName);
+
+  const stream = await createDownloadStream(authService, mediaItem);
+  return new Promise((resolve, reject) => {
+    stream.pipe(fse.createWriteStream(where)
+      .on('close', () => {
+        // this._setFileTimestamp(where, mediaItem);
+        resolve({ valid: true, where, mediaItem });
+      }))
+      .on('error', (err: any) => {
+        log.error(this, 'error downloading a file', where, err);
+        resolve({ valid: false, where, mediaItem });
+      });
+  });
+};
+
+
+const createDownloadStream = async (authService: AuthService, mediaItem: any) => {
+  const headers = await getHeaders(authService);
+  const url: string = await createDownloadUrl(mediaItem);
+
+  return request(url, { headers });
+};
+
+
+const createDownloadUrl = async (mediaItem: GoogleMediaItem) => {
+
+  let downloadParams = '';
+
+  // TEDTODO
+  if ((mediaItem.mediaMetadata as any).video) {
+    downloadParams += 'dv';
+  }
+
+  if (mediaItem.mediaMetadata.photo) {
+    const { width, height } = mediaItem.mediaMetadata;
+    downloadParams += `w${width}-h${height}`;
+  }
+
+  return `${mediaItem.baseUrl}=${downloadParams}`;
+};
+
+// TEDTODO - deal with heif / heic files
+const getSuffixFromMimeType = (mimeType: string): string => {
+  switch (mimeType) {
+    case 'image/png':
+      return '.png';
+    case 'video/mp4':
+      return '.mp4';
+    case 'image/heif':
+      return '.heic';
+    case 'image/jpeg':
+    default:
+      return '.jpg';
+  }
 };
 
