@@ -16,6 +16,7 @@ import { Scheduler } from './jobs';
 
 import { log } from './log';
 import {
+  downloadGooglePhotos,
   // addGoogleMediaItemsToDb,
   getGooglePhotosToDownload,
 } from './controllers';
@@ -47,9 +48,12 @@ async function main() {
   // await addGoogleMediaItemsToDb(authService);
 
   // Command: get a list of the media items that are in the db that are not on the specified storage device
-  const photosToDownload: DbMediaItem[] = await getGooglePhotosToDownload();
-  console.log(photosToDownload);
-  
+  // const photosToDownload: DbMediaItem[] = await getGooglePhotosToDownload();
+  // console.log(photosToDownload);
+
+  // Command: download media items that are in the db that are not on the specified storage device; add to db
+  await downloadGooglePhotos(authService);
+
   return;
 
   const googlePhotos = new GooglePhotos(authService);

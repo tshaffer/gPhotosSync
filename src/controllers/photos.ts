@@ -10,13 +10,14 @@ import {
   // Model, 
   // Schema,
 } from 'mongoose';
-import { getAllMediaItemsFromGoogle } from './googlePhotos';
+import { downloadMediaItemsMetadata, getAllMediaItemsFromGoogle, GooglePhotoAPIs } from './googlePhotos';
 import { DbMediaItem, GoogleMediaItem } from '../types';
 import { addMediaItemsToDb } from './dbInterface';
 import {
   fsLocalFolderExists,
-  fsCreateNestedDirectory
-} from '../utilities';
+  fsCreateNestedDirectory,
+  createGroups
+} from '../utils';
 import { mediaItemsDir } from '../app';
 
 interface GoogleIdToDbMediaItemMap {
@@ -137,4 +138,25 @@ const getShardedDirectory = async (photoId: string): Promise<string> => {
       console.log(err);
       return Promise.reject();
     });
+};
+
+export const downloadGooglePhotos = async (authService: AuthService): Promise<any> => {
+
+  const photosToDownload: DbMediaItem[] = await getGooglePhotosToDownload();
+
+  const mediaItemIds: string[] = photosToDownload.map( (photoToDownload: DbMediaItem) => {
+    return photoToDownload.id;
+  });
+
+  const groups = createGroups(mediaItemIds, GooglePhotoAPIs.BATCH_GET_LIMIT);
+  console.log(groups);
+
+  // is this necessary or does this information already exist in the database?
+  const mediaItemGroups: GoogleMediaItem[][] = await Promise.all(groups.map((sliceIds: any) => {
+    return downloadMediaItemsMetadata(authService, sliceIds);
+  }));
+
+  console.log(mediaItemGroups);
+
+  return Promise.resolve();
 };

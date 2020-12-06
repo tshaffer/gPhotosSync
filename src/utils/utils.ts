@@ -18,3 +18,19 @@ function fsLocalFileIsDirectory(fullPath: string) {
   return fse.stat(fullPath)
     .then((stat) => stat.isDirectory());
 }
+
+export function createGroups(items: string[], groupSize: number): string[][] {
+  
+  const groups: string[][] = [];
+
+  const numOfGroups = Math.ceil(items.length / groupSize);
+  for (let i = 0; i < numOfGroups; i++) {
+      const startIdx = i * groupSize;
+      const endIdx = i * groupSize + groupSize;
+
+      const subItems: string[] = items.slice(startIdx, endIdx);
+      groups.push(subItems);
+  }
+
+  return groups;
+}
