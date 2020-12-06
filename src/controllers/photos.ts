@@ -79,7 +79,7 @@ const getGoogleMediaItemsNotInDb = (mediaItemsInDb: Document[], googleMediaItems
 
 let shardedDirectoryExistsByPath: any = {};
 
-export const getGooglePhotosToDownload = async () => {
+export const getGooglePhotosToDownload = async (): Promise<DbMediaItem[]> => {
 
   const mediaItemsNotDownloaded: DbMediaItem[] = [];
 
@@ -97,6 +97,8 @@ export const getGooglePhotosToDownload = async () => {
   }
 
   console.log(mediaItemsNotDownloaded);
+
+  return mediaItemsNotDownloaded;
 };
 
 const isMediaItemDownloaded = async (dbMediaItem: DbMediaItem): Promise<boolean> => {

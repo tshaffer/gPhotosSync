@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import connectDB from './config/db';
 
+import { DbMediaItem } from './types';
+
 import { Store } from './keyValueStore';
 import { AuthStorage } from './authStorage';
 import { AuthService } from './authService';
@@ -8,7 +10,7 @@ import { GooglePhotos } from './googlePhotos';
 import { Downloader } from './downloader';
 import args from 'command-line-args';
 
-import config from './config.json'
+import config from './config.json';
 import { AppController } from './app-controller';
 import { Scheduler } from './jobs';
 
@@ -16,8 +18,7 @@ import { log } from './log';
 import {
   // addGoogleMediaItemsToDb,
   getGooglePhotosToDownload,
-}
-  from './controllers';
+} from './controllers';
 
 export let mediaItemsDir: string = '';
 
@@ -42,15 +43,14 @@ async function main() {
 
   // get command, parameters from command line
 
-  // for now, get media items on google but not in db; add them to db
+  // Command: add google media items that are not already in the db to the db
   // await addGoogleMediaItemsToDb(authService);
 
-  await getGooglePhotosToDownload();
-
+  // Command: get a list of the media items that are in the db that are not on the specified storage device
+  const photosToDownload: DbMediaItem[] = await getGooglePhotosToDownload();
+  console.log(photosToDownload);
+  
   return;
-
-
-
 
   const googlePhotos = new GooglePhotos(authService);
 
