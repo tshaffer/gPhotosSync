@@ -116,21 +116,25 @@ export const downloadMediaItemsMetadata = async (authService: AuthService, media
 
 export const downloadMediaItems = async (authService: AuthService, mediaItemGroups: GoogleMediaItem[][]): Promise<any> => {
 
-  const mediaItem: GoogleMediaItem = mediaItemGroups[0][0];
-
-  const retVal: any = await (downloadMediaItem(authService, mediaItem));
-  console.log(retVal);
-
-  if (retVal.valid) {
-    const dbMediaItem: DbMediaItem = convertGoogleMediaItemToDbMediaItem(retVal.mediaItem);
-    dbMediaItem.downloaded = true;
-    dbMediaItem.filePath = retVal.where;
-    await upsertMediaItemInDb(dbMediaItem);
-  } else {
-    debugger;
+  for (const mediaItemGroup of mediaItemGroups) {
+    for (const mediaItem of mediaItemGroup) {
+      const retVal: any = await (downloadMediaItem(authService, mediaItem));
+      console.log(retVal);
+      if (retVal.valid) {
+          await addGoogleMediaItemToDb(retVal.mediaItem, retVal.where);
+      } else {
+        debugger;
+      }
+    }
   }
 };
 
+const addGoogleMediaItemToDb = async (mediaItem: GoogleMediaItem, targetFilePath: string) => {
+  const dbMediaItem: DbMediaItem = convertGoogleMediaItemToDbMediaItem(mediaItem);
+  dbMediaItem.downloaded = true;
+  dbMediaItem.filePath = targetFilePath;
+  await upsertMediaItemInDb(dbMediaItem);
+};
 
 const downloadMediaItem = async (authService: AuthService, mediaItem: GoogleMediaItem): Promise<any> => {
 
